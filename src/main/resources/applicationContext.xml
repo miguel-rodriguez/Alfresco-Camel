@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    
+    <!-- Define database -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.postgresql.Driver" />
+        <property name="url" value="jdbc:postgresql://localhost:5432/alfresco" />
+        <property name="username" value="alfresco" />
+        <property name="password" value="admin" />
+    </bean>
+    
+    <!-- configure the Camel SQL component to use the JDBC data source -->
+    <bean id="sql" class="org.apache.camel.component.sql.SqlComponent">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+    <!-- Create a connection to ActiveMQ -->
+    <bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://localhost:61616" />
+    </bean>
+    
+    <!-- Create Camel context -->
+    <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring" autoStartup="true">
+        <routeBuilder ref="myRouteBuilder" />
+    </camelContext>
+    
+    <!-- Bean defining Camel routes -->
+    <bean id="myRouteBuilder" class="support.alfresco.Route" />
+    
+    <!-- Define configuration file application.properties -->
+    <bean id="placeholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:application.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound" value="false" />
+        <property name="searchSystemEnvironment" value="true" />
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+    </bean>
+    
+    <!--  Bean for Box authentication -->
+    <bean id="box" class="org.apache.camel.component.box.BoxComponent">
+        <property name="configuration">
+            <bean class="org.apache.camel.component.box.BoxConfiguration">
+                <property name="userName" value="${box.userName}" />
+                <property name="userPassword" value="${box.userPassword}" />
+                <property name="clientId" value="${box.clientId}" />
+                <property name="clientSecret" value="${box.clientSecret}" />
+            </bean>
+        </property>
+    </bean>
+</beans>
