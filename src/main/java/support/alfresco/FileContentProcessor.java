@@ -61,12 +61,12 @@ public class FileContentProcessor implements Processor {
 					in.close();
 					out.close();	
 
-					xmlMetadata = "<file ";
+					xmlMetadata = "<file\n";
 
 				    Iterator it = entry.entrySet().iterator();
 				    while (it.hasNext()) {
 				        Map.Entry pair = (Map.Entry)it.next();
-		        		xmlMetadata = xmlMetadata + pair.getKey() + "=\"" + pair.getValue() + "\" ";
+		        		xmlMetadata = xmlMetadata + pair.getKey() + "=\"" + pair.getValue() + "\" \n";
 		        		System.out.println(pair.getKey() + "=" + pair.getValue());
 
 		        	}
